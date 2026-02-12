@@ -1,58 +1,63 @@
+// pokemon_state.dart
+import 'package:equatable/equatable.dart';
 import 'package:pokemonapp/core/errors/failure.dart';
 import 'package:pokemonapp/features/pokemon/domain/entities/pokemon.dart';
 
-class PokemonState {
-  final bool isLoading; // Para búsqueda o carga inicial de lista
-  final bool isNextPageLoading; // Para paginación
-  final Failure? error;
-  final Pokemon? pokemon; // Resultado de búsqueda
-  final List<Pokemon> pokemonList;
+class PokemonState extends Equatable {
+  final bool isLoading;
+  final bool isNextPageLoading;
   final bool hasReachedMax;
+  final List<Pokemon> pokemonList;
+  final Pokemon? pokemon;
+  final Failure? error;
 
   const PokemonState({
     this.isLoading = false,
     this.isNextPageLoading = false,
-    this.error,
-    this.pokemon,
-    this.pokemonList = const [],
     this.hasReachedMax = false,
+    this.pokemonList = const [],
+    this.pokemon,
+    this.error,
   });
 
   PokemonState copyWith({
     bool? isLoading,
     bool? isNextPageLoading,
-    Failure? error,
-    Pokemon? pokemon,
-    List<Pokemon>? pokemonList,
     bool? hasReachedMax,
+    List<Pokemon>? pokemonList,
+    Pokemon? pokemon,
+    Failure? error,
   }) {
     return PokemonState(
       isLoading: isLoading ?? this.isLoading,
       isNextPageLoading: isNextPageLoading ?? this.isNextPageLoading,
-      error:
-          error, // Si no se pasa, se limpia el error anterior si es null explícito? No, aquí mantenemos el patrón usual.
-      // Pero mejor: si se pasa error, se usa. Si no, se mantiene.
-      // Para limpiar error, usar clearError.
-      // Wait, user logic for copyWith usually keeps old value if null.
-      // For error, we might want to clear it explicitly. Let's keep strict copyWith.
-      pokemon: pokemon ?? this.pokemon,
-      pokemonList: pokemonList ?? this.pokemonList,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
+      pokemonList: pokemonList ?? this.pokemonList,
+      pokemon: pokemon ?? this.pokemon,
+      error:
+          error, // Nota: Si pasas null en copyWith para borrar error, maneja esa lógica aquí si es necesario
     );
   }
 
-  PokemonState copyWithFailure({Failure? error}) {
+  // Método helper que usas en tu provider
+  PokemonState clearError() {
     return PokemonState(
       isLoading: isLoading,
       isNextPageLoading: isNextPageLoading,
-      error: error,
-      pokemon: pokemon,
-      pokemonList: pokemonList,
       hasReachedMax: hasReachedMax,
+      pokemonList: pokemonList,
+      pokemon: pokemon,
+      error: null,
     );
   }
 
-  PokemonState clearError() {
-    return copyWithFailure(error: null);
-  }
+  @override
+  List<Object?> get props => [
+    isLoading,
+    isNextPageLoading,
+    hasReachedMax,
+    pokemonList,
+    pokemon,
+    error,
+  ];
 }

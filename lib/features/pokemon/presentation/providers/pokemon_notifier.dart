@@ -36,8 +36,11 @@ class PokemonNotifier extends Notifier<PokemonState> {
         hasReachedMax: list.length < 20,
       );
     } catch (e) {
-      state = state.copyWithFailure(error: ServerFailure(e.toString()));
-      state = state.copyWith(isLoading: false);
+      // ✅ Single update: set error AND clear isLoading together
+      state = state.copyWith(
+        isLoading: false,
+        error: ServerFailure(e.toString()),
+      );
     }
   }
 
@@ -55,8 +58,11 @@ class PokemonNotifier extends Notifier<PokemonState> {
         hasReachedMax: list.isEmpty,
       );
     } catch (e) {
-      state = state.copyWithFailure(error: ServerFailure(e.toString()));
-      state = state.copyWith(isNextPageLoading: false);
+      // ✅ Single update
+      state = state.copyWith(
+        isNextPageLoading: false,
+        error: ServerFailure(e.toString()),
+      );
     }
   }
 
@@ -77,8 +83,11 @@ class PokemonNotifier extends Notifier<PokemonState> {
       final pokemon = await _getPokemon(term);
       state = state.copyWith(isLoading: false, pokemon: pokemon);
     } catch (e) {
-      state = state.copyWithFailure(error: ServerFailure(e.toString()));
-      state = state.copyWith(isLoading: false);
+      // ✅ Single update
+      state = state.copyWith(
+        isLoading: false,
+        error: ServerFailure(e.toString()),
+      );
     }
   }
 

@@ -4,8 +4,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pokemonapp/features/pokemon/domain/entities/pokemon.dart';
+import 'package:pokemonapp/features/pokemon/domain/usecases/get_pokemon.dart';
+import 'package:pokemonapp/features/pokemon/domain/usecases/get_pokemon_list.dart';
 import 'package:pokemonapp/features/pokemon/presentation/pages/pokemon_page.dart';
 import 'package:pokemonapp/features/pokemon/presentation/providers/pokemon_notifier.dart';
 
@@ -70,9 +73,17 @@ void main() {
     HttpOverrides.global = _TestHttpOverrides();
   });
 
-  setUp(() {
+  setUp(() async {
+    // 1. Limpieza
+    await GetIt.instance.reset();
+
+    // 2. Mocks
     mockGetPokemon = MockGetPokemon();
     mockGetPokemonList = MockGetPokemonList();
+
+    // 3. Registro en GetIt (CRUCIAL)
+    GetIt.instance.registerSingleton<GetPokemon>(mockGetPokemon);
+    GetIt.instance.registerSingleton<GetPokemonList>(mockGetPokemonList);
   });
 
   Widget createWidgetUnderTest() {
@@ -88,13 +99,6 @@ void main() {
   }
 
   testWidgets('shows loading indicator when state is loading', (tester) async {
-    // Arrange
-    // Default state of Notifier calls loadInitialList immediately.
-    // We mock getPokemonList to never complete (or complete later) to keep it loading?
-    // Or we mock it to return empty list first?
-    // Actually, notifier calls loadInitialList in constructor.
-    // We want to test the initial loading state.
-
     when(
       () => mockGetPokemonList(
         offset: any(named: 'offset'),
