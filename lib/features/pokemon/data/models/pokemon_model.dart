@@ -17,7 +17,7 @@ class PokemonModel extends Pokemon {
 
   factory PokemonModel.fromListJson(Map<String, dynamic> json) {
     final url = json['url'] as String;
-    // URL format: https://pokeapi.co/api/v2/pokemon/1/
+
     final idStr = url.split('/')[6];
     final id = int.parse(idStr);
     return PokemonModel(

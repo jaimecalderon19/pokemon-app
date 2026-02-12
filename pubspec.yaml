@@ -32,6 +32,8 @@ dev_dependencies:
     sdk: flutter
   json_serializable: ^6.9.4
   build_runner: ^2.4.15
+  mocktail: ^1.0.4
+  riverpod_test: ^0.1.9
 
 dependencies:
   flutter:
