@@ -5,30 +5,29 @@ import 'package:pokemonapp/features/pokemon/domain/usecases/get_pokemon.dart';
 import 'package:pokemonapp/features/pokemon/domain/usecases/get_pokemon_list.dart';
 import 'package:pokemonapp/features/pokemon/presentation/providers/pokemon_state.dart';
 
-final pokemonProvider = StateNotifierProvider<PokemonNotifier, PokemonState>((
-  ref,
-) {
-  return PokemonNotifier(
-    GetIt.instance<GetPokemon>(),
-    GetIt.instance<GetPokemonList>(),
-  );
+final pokemonProvider = NotifierProvider<PokemonNotifier, PokemonState>(() {
+  return PokemonNotifier();
 });
 
-class PokemonNotifier extends StateNotifier<PokemonState> {
-  final GetPokemon _getPokemon;
-  final GetPokemonList _getPokemonList;
+class PokemonNotifier extends Notifier<PokemonState> {
+  late final GetPokemon _getPokemon;
+  late final GetPokemonList _getPokemonList;
 
-  PokemonNotifier(this._getPokemon, this._getPokemonList)
-    : super(const PokemonState()) {
-    loadInitialList();
-  }
+  @override
+  PokemonState build() {
+    _getPokemon = GetIt.instance<GetPokemon>();
+    _getPokemonList = GetIt.instance<GetPokemonList>();
 
-  Future<void> loadInitialList() async {
-    state = state.copyWith(
+    Future.microtask(() => loadInitialList());
+
+    return const PokemonState(
       isLoading: true,
       hasReachedMax: false,
       pokemonList: [],
     );
+  }
+
+  Future<void> loadInitialList() async {
     try {
       final list = await _getPokemonList(offset: 0, limit: 20);
       state = state.copyWith(
@@ -38,7 +37,6 @@ class PokemonNotifier extends StateNotifier<PokemonState> {
       );
     } catch (e) {
       state = state.copyWithFailure(error: ServerFailure(e.toString()));
-      // Opcional: isLoading false
       state = state.copyWith(isLoading: false);
     }
   }
@@ -64,19 +62,15 @@ class PokemonNotifier extends StateNotifier<PokemonState> {
 
   Future<void> searchPokemon(String query) async {
     if (query.isEmpty) {
-      // Si la query es vacía, volvemos a mostrar la lista (si ya la tenemos cargada, idealmente no recargar)
-      // O podemos recargar la lista inicial.
-      // Por simplicidad, recargamos la lista inicial o si ya tenemos lista, solo limpiamos el pokemon search result.
       state = state.copyWith(pokemon: null, error: null);
       if (state.pokemonList.isEmpty) {
-        loadInitialList();
+        await loadInitialList();
       }
       return;
     }
 
     state = state.copyWith(isLoading: true, error: null, pokemon: null);
 
-    // Convert string to lower case for API
     final term = query.trim().toLowerCase();
 
     try {
