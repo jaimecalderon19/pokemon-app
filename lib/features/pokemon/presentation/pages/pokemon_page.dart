@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pokemonapp/features/pokemon/domain/entities/pokemon.dart';
 import 'package:pokemonapp/features/pokemon/presentation/providers/pokemon_notifier.dart';
 import 'package:pokemonapp/features/pokemon/presentation/providers/pokemon_state.dart';
+import 'package:pokemonapp/shared/presentation/widgets/pokemon_card_widget.dart';
 
 class PokemonPage extends ConsumerStatefulWidget {
   const PokemonPage({super.key});
@@ -96,7 +96,7 @@ class _PokemonPageState extends ConsumerState<PokemonPage> {
 
     if (state.pokemon != null) {
       return SingleChildScrollView(
-        child: _PokemonCard(pokemon: state.pokemon!, isDetail: true),
+        child: PokemonCard(pokemon: state.pokemon!, isDetail: true),
       );
     }
 
@@ -115,7 +115,7 @@ class _PokemonPageState extends ConsumerState<PokemonPage> {
       itemBuilder: (context, index) {
         if (index < state.pokemonList.length) {
           final pokemon = state.pokemonList[index];
-          return _PokemonCard(pokemon: pokemon);
+          return PokemonCard(pokemon: pokemon);
         } else {
           return const Padding(
             padding: EdgeInsets.all(16.0),
@@ -123,50 +123,6 @@ class _PokemonPageState extends ConsumerState<PokemonPage> {
           );
         }
       },
-    );
-  }
-}
-
-class _PokemonCard extends StatelessWidget {
-  final Pokemon pokemon;
-  final bool isDetail;
-
-  const _PokemonCard({required this.pokemon, this.isDetail = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Image.network(
-              pokemon.imageUrl,
-              height: isDetail ? 200 : 150,
-              width: isDetail ? 200 : 150,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) =>
-                  const Icon(Icons.broken_image, size: 100, color: Colors.grey),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              pokemon.name.toUpperCase(),
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            if (isDetail) ...[
-              const SizedBox(height: 10),
-              Text(
-                'ID: ${pokemon.id}',
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-            ],
-          ],
-        ),
-      ),
     );
   }
 }
